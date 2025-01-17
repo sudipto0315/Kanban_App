@@ -4,14 +4,27 @@ import { Dialog, Stack, Typography, Box, IconButton, TextField, Button} from '@m
 import CloseIcon from '@mui/icons-material/Close'
 import ModalHeader from '../../components/layout/ModalHeader'
 import { colors } from '../../theme'
-const CreateBoardModal = () => {
+import useApp from '../../hooks/useApp'
+const CreateBoardModal = ({closeModal}) => {
+    const { createBoard } = useApp()
     const [name, setName]=useState('')
     const [color, setColor]=useState(0)
-    console.log({name,color})
+    const [loading, setLoading]=useState(false)
+    
+    const handleCreate = async () => {
+        try{
+            setLoading(true)
+            await createBoard({name, color})
+            closeModal()
+        }catch(err){
+            setLoading(false)
+            console.log(err)
+        }
+    }
   return (
-    <Dialog open fullWidth maxWidth='xs'>
+    <Dialog open onClose={closeModal} fullWidth maxWidth='xs'>
         <Stack padding={2}>
-            <ModalHeader title={"Create Board"}/>
+            <ModalHeader onClose={closeModal} title={"Create Board"}/>
             <Stack my={5} spacing={3}>
                 <TextField value={name} onChange={(e)=> setName(e.target.value)} label="Board name"/>
                 <Stack spacing={1.5} direction={'row'}>
@@ -33,7 +46,7 @@ const CreateBoardModal = () => {
                     ))}
                 </Stack>
             </Stack>
-            <Button size='large' variant='contained'>Create</Button>
+            <Button disabled={loading} onClick={handleCreate} size='large' variant='contained'>Create</Button>
         </Stack>
     </Dialog>
   )
